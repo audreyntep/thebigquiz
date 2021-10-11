@@ -1,10 +1,12 @@
-TP REACT EXPO "THE BIG QUIZ"
+# TP REACT EXPO "THE BIG QUIZ"
 
-Language : Javascript Flow and JSX in ECMAScript6
-Librairie : Expo React-Native v42.0.4
-Serveur : NodeJs v14.16.1
+**Techno :**
+- Language : Javascript Flow and JSX in ECMAScript6
+- Librairie : Expo React-Native v42.0.4
+- Serveur : NodeJs v14.16.1
 
-#How to start project?
+
+**How to start project?**
 - Install the dependencies : "npm install";
 - Run the metro bundler : "expo start"
 - Browser opens up,scan QR code with Expo App;
