@@ -1,21 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import HomeScreen from "./screens/HomeScreen";
+import CameraScreen from "./screens/CameraScreen";
+import QuizScreen from "./screens/QuizScreen";
+import Dashboard from "./screens/Dashboard";
+import { Provider } from 'react-redux'
+import Store from './store/configStore'
+const Stack = createStackNavigator();
 
-export default function App() {
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+      <Provider store={Store}>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="LeGrandQuiz" component={HomeScreen} options={{ tabBarLabel: 'Quiz' }}/>
+              <Stack.Screen name="Camerascreen" component={CameraScreen} />
+              <Stack.Screen name="Quizscreen" component={QuizScreen} />
+              <Stack.Screen name="Dashboard" component={Dashboard} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
