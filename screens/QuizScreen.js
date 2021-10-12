@@ -39,6 +39,7 @@ class QuizScreen extends React.Component{
                 name:"",
                 score:"",
             },
+            players: [],
             loading: false,
             questions: [],
             current: 0,
@@ -55,6 +56,8 @@ class QuizScreen extends React.Component{
     componentDidMount() {
         this.fetchQuestions();
         console.log(Database.getPlayerById(this.state.id));
+        this.setState({players: Database.getPlayers()});
+        console.log(this.state.players);
     }
 
     fetchQuestions = async () => {
@@ -90,7 +93,7 @@ class QuizScreen extends React.Component{
         );
     };
 
-    submitAnswer = (index, answer, navigate) => {
+    submitAnswer = (index, answer) => {
         const question = this.state.questions[index];
         const isCorrect = question.correct_answer === answer;
         const results = { ...this.state.results };
@@ -103,7 +106,7 @@ class QuizScreen extends React.Component{
         this.setState({
             current: index + 1,
             results,
-            completed: index === 3
+            completed: current === 4,
         });
         console.log('fini :'+this.state.completed);
         if(this.state.completed === true){
@@ -112,8 +115,8 @@ class QuizScreen extends React.Component{
     };
 
     render(){
-        const {navigate} = this.props.navigation;
-        console.log(this.state);
+        //const {navigate} = this.props.navigation;
+        //console.log(this.state);
         return (
             <View style={styles.containerView}>
                 {!!this.state.loading && (
@@ -127,7 +130,7 @@ class QuizScreen extends React.Component{
                 this.state.completed === false && (
                     <Question
                         onSelect={answer => {
-                            this.submitAnswer(this.state.current, answer,navigate);
+                            this.submitAnswer(this.state.current, answer);
                         }}
                         question={this.state.questions[this.state.current]}
                         correctPosition={Math.floor(Math.random() * 3)}

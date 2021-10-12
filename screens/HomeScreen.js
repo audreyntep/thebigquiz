@@ -4,6 +4,7 @@ import AppButton from "../components/AppButton";
 import { connect } from 'react-redux';
 import Database from "../core/Database";
 import Header from "../components/Header";
+import {Camera} from "expo-camera";
 
 
 class HomeScreen extends React.Component {
@@ -12,17 +13,34 @@ class HomeScreen extends React.Component {
         super(props);
         this.state = {
             name: "",
-            uri: "",
+            cameraView: true,
+            hasPermission: null,
+            uri: null
         };
     }
-/*
-    componentDidMount() {
-        Database.initializeDatabase();
-    }*/
 
-    static async onPressRegisterPlayer(name: string, navigate: function){
-        console.log('2. register player');/*
-        //si aucun name n'a été saisi
+    componentDidMount() {
+        //Database.clearDatabase();
+        Database.initializeDatabase();
+    }
+
+    async useEffect(){
+        const {status} = await Camera.requestPermissionsAsync();
+        this.setState({hasPermission: status === 'granted'});
+    }
+
+    async snap(){
+        if (this.camera) {
+            let photo = await this.camera.takePictureAsync();
+            console.log(photo);
+            this.setState({uri: photo.uri});
+            this.setState({cameraView: false});
+        }
+    }
+
+    static async onPressRegisterPlayer(name: string, uri: string, navigate: function){
+        console.log('2. register player');
+        //si aucun nom n'a été saisi
         if(name === ""){
             Alert.alert(
                 'Champ obligatoire !',
@@ -33,30 +51,20 @@ class HomeScreen extends React.Component {
                 {cancelable: false},
             );
         }
-        //on récupère la liste des players dans la db
-        let players = await Database.getPlayers();
-        //si la longueur de la liste est supérieure à 0
-        if (players.length > 0) {
-            //alors pour chaque player
-            for (let i = 0; i < players.length; i++) {
-                console.log('- player ' + players.item(i).id + ' : name : ' + players.item(i).name);
-                //on compare le name du nouveau player
-                if (players.item(i).name === name) {
-                    //alerte si il existe déjà
-                    Alert.alert(
-                        'Nom indisponible !',
-                        'Trouvez un autre pseudo.',
-                        [
-                            {text: 'OK', onPress: () => console.log('OK Pressed')},
-                        ],
-                        {cancelable: false},
-                    );
-                    break;
-                }
-            }
-        }*/
+        //si aucune photo n'a été prise
+        if(uri === null){
+            Alert.alert(
+                'Photo !',
+                'Prendre une photo.',
+                [
+                    {text: 'OK', onPress: () => console.log('OK Pressed')},
+                ],
+                {cancelable: false},
+            );
+        }
+
         //on crée un nouveau player
-        let playerId = await Database.createPlayer(name);
+        let playerId = await Database.createPlayer(name, uri);
         //puis redirection vers la page quiz avec l'id player en props
         navigate('Quizscreen', {playerId: playerId});
     }
@@ -64,7 +72,15 @@ class HomeScreen extends React.Component {
     render(){
         const {navigate} = this.props.navigation;
         //console.log(this.props.route.params);
-        Database.initializeDatabase();
+
+        this.useEffect()
+        if (this.state.hasPermission === null) {
+            return <View/>;
+        }
+        if (this.state.hasPermission === false) {
+            return <Text>No access to camera</Text>;
+        }
+
         return (
             <View style={styles.containerView}>
                 <Header title="Bienvenue !"/>
@@ -77,9 +93,19 @@ class HomeScreen extends React.Component {
                         value={this.state.name}
                         onChangeText={text => this.setState({ name: text })}
                     />
-                    <Image style={styles.image} source={require('./img/user.jpg')}/>
-                    <AppButton title={'Prendre une photo'} onPress={() => navigate('Camerascreen')}/>
-                    <AppButton title={'Commencer !'} onPress={() => HomeScreen.onPressRegisterPlayer(this.state.name, navigate)}/>
+                    {!!this.state.cameraView === true && (
+                        <View>
+                            <Camera style={styles.camera} type={Camera.Constants.Type.front} ref={ref => {this.camera = ref;}}/>
+                            <AppButton title={'Prendre une photo'} onPress={() => this.snap()}/>
+                        </View>
+                    )}
+                    {!!this.state.cameraView === false && (
+                        <View>
+                            <Image style={styles.camera} source={{uri: this.state.uri}}/>
+                            <AppButton title={'Reprendre une photo'} onPress={() => this.setState({cameraView: true})}/>
+                        </View>
+                    )}
+                    <AppButton title={'Commencer !'} onPress={() => HomeScreen.onPressRegisterPlayer(this.state.name, this.state.uri, navigate)}/>
                 </View>
             </View>
         );
@@ -117,6 +143,14 @@ const styles = StyleSheet.create({
         height: 250,
         width: 250,
         borderRadius: 5,
+    },
+    camera: {
+        alignSelf: 'center',
+        marginTop: 20,
+        padding: 5,
+        height: 200,
+        width: 200,
+        borderRadius: 50,
     }
 });
 

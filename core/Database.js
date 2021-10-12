@@ -20,7 +20,7 @@ export default class Database{
         console.log('1. create database');
         db.transaction(tx => {
                 tx.executeSql(
-                    "create table if not exists player (id integer primary key autoincrement not null,name text, score integer default 0);"
+                    "create table if not exists player (id integer primary key autoincrement not null,name text, uri text, score integer default 0);"
                 );
             }, (e) => { console.log("-> create KO + " + e) },
             () => { console.log("-> create OK") }
@@ -54,10 +54,10 @@ export default class Database{
         return results;
     };
 
-    static async createPlayer(name: string) {
+    static async createPlayer(name: string, uri: string) {
         console.log('6. create player : '+ name);
         let id = null;
-        await this.ExecuteQuery("insert into player(name) values(?)", [name]).then(
+        await this.ExecuteQuery("insert into player(name, uri) values(?, ?)", [name, uri]).then(
             (value) => {
                 console.log('-> insert OK');
                 console.log(JSON.stringify(value));
