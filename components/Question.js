@@ -51,10 +51,10 @@ export default class Question extends React.Component {
         }
     };
 
-    render() {gftttttt
+    render() {
         return (
             <View style={styles.containerView}>
-                <Header>{this.props.name}</Header>
+                <Text style={styles.player}>{this.props.name}</Text>
                 <Text style={styles.index}>
                     Question : {this.props.current} / {this.props.nbQuestion}
                 </Text>
@@ -95,4 +95,10 @@ const styles = StyleSheet.create({
         padding: 10,
         marginTop: 15,
     },
+    player: {
+        textAlign: 'center',
+        color:theme.colors.primary,
+        fontSize: 18,
+        fontWeight: 'bold'
+    }
 });

@@ -35,7 +35,7 @@ class QuizScreen extends React.Component{
         super(props);
         this.state = {
             id: this.props.route.params.playerId,
-            name: this.props.route.params.playerId,
+            name: this.props.route.params.playerName,
             loading: false,
             nbQuestion: 5,
             correctScore: 5,
@@ -70,28 +70,33 @@ class QuizScreen extends React.Component{
 
     //gestion de la validation de la réponse
     submitAnswer = (index, answer) => {
+        console.log('submit current '+this.state.current);
+        //on récupère la question courante
         const question = this.state.questions[index];
+        //on vérifie si la réponse du joueur est identique
         const isCorrect = question.correct_answer === answer;
-        if(isCorrect){
-            this.setState({score: + this.state.correctScore})
-        }
-        this.setState({
-            current: index + 1
-        });
-        console.log('current '+this.state.current);
-        this.setState({
-            completed: this.state.current === this.state.nbQuestion
-        });
+        //on attribue les points
+        if(isCorrect){this.setState({score: + this.state.correctScore})};
+        //on change de question
+        this.setState({current: index + 1});
+        //on vérifie que la partie n est pas finie
+        this.setState({completed: this.state.current === this.state.nbQuestion});
+        /*
         console.log('completed :'+this.state.completed);
         if(this.state.completed === true){
             navigate('Dashboard');
-        }
+        }*/
     };
+
+    async navigateToDashboard(navigate){
+        if(this.state.current === this.state.nbQuestion){await navigate('Dashboard');}
+    }
 
     render(){
         console.log('4. start quiz');
         const {navigate} = this.props.navigation;
-        console.log('current '+this.state.current);
+        console.log('render current '+this.state.current);
+        this.navigateToDashboard({navigate});
         return (
             <View style={styles.containerView}>
                 {!!this.state.loading && (
