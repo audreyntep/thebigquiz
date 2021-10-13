@@ -32,14 +32,13 @@ class HomeScreen extends React.Component {
     async snap(){
         if (this.camera) {
             let photo = await this.camera.takePictureAsync();
-            console.log(photo);
+            //console.log(photo);
             this.setState({uri: photo.uri});
             this.setState({cameraView: false});
         }
     }
 
     static async onPressRegisterPlayer(name: string, uri: string, navigate: function){
-        console.log('2. register player');
         //si aucun nom n'a été saisi
         if(name === ""){
             Alert.alert(
@@ -65,8 +64,8 @@ class HomeScreen extends React.Component {
 
         //on crée un nouveau player
         let playerId = await Database.createPlayer(name, uri);
-        //puis redirection vers la page quiz avec l'id player en props
-        navigate('Quizscreen', {playerId: playerId});
+        //puis redirection vers la page quiz avec l'id et le name du player en props
+        navigate('Quizscreen', {playerId: playerId, playerName: name});
     }
 
     render(){
@@ -129,7 +128,6 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     container: {
-
         marginHorizontal: 10,
     },
     text: {

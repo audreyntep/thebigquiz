@@ -35,88 +35,63 @@ class QuizScreen extends React.Component{
         super(props);
         this.state = {
             id: this.props.route.params.playerId,
-            player: {
-                name:"",
-                score:"",
-            },
-            players: [],
+            name: this.props.route.params.playerId,
             loading: false,
-            questions: [],
-            current: 0,
+            nbQuestion: 5,
             correctScore: 5,
-            totalScore: 50,
-            results: {
-                score: 0,
-                correctAnswers: 0
-            },
-            completed: false
+            completed: false,
+            questions: [],
+            current: 1,
+            score:0
         };
     }
 
     componentDidMount() {
         this.fetchQuestions();
-        console.log(Database.getPlayerById(this.state.id));
-        this.setState({players: Database.getPlayers()});
-        console.log(this.state.players);
     }
 
+    //gestion des questions
     fetchQuestions = async () => {
+        //chargement des questions
         await this.setState({ loading: true });
+        //on récupère les questions depuis un serveur distant
         const response = await fetch(
-            'https://opentdb.com/api.php?amount=5&category=11&type=boolean', {
-                method : 'POST', headers:{"Content-Type":"multipart/form-data"}
+            'https://opentdb.com/api.php?amount='+this.state.nbQuestion+'&category=11&type=boolean', {
+                method : 'POST', headers: { Accept: 'application/json','Content-Type':'application/json'}
             }
         );
         const questions = await response.json();
         const { results } = questions;
-        results.forEach(item => {
-            //console.log(item.id);
+        /*results.forEach(item => {
             item.id = Math.floor(Math.random() * 10000);
-        });
+        });*/
         await this.setState({ questions: results, loading: false });
     };
 
-    reset = () => {
-        this.setState(
-            {
-                questions: [],
-                current: 0,
-                results: {
-                    score: 0,
-                    correctAnswers: 0
-                },
-                completed: false
-            },
-            () => {
-                this.fetchQuestions();
-            }
-        );
-    };
-
+    //gestion de la validation de la réponse
     submitAnswer = (index, answer) => {
         const question = this.state.questions[index];
         const isCorrect = question.correct_answer === answer;
-        const results = { ...this.state.results };
-
-        results.score = isCorrect ? results.score + 5 : results.score;
-        results.correctAnswers = isCorrect
-            ? results.correctAnswers + 1
-            : results.correctAnswers;
-
+        if(isCorrect){
+            this.setState({score: + this.state.correctScore})
+        }
         this.setState({
-            current: index + 1,
-            results,
-            completed: current === 4,
+            current: index + 1
         });
-        console.log('fini :'+this.state.completed);
+        console.log('current '+this.state.current);
+        this.setState({
+            completed: this.state.current === this.state.nbQuestion
+        });
+        console.log('completed :'+this.state.completed);
         if(this.state.completed === true){
             navigate('Dashboard');
         }
     };
 
     render(){
-        //const {navigate} = this.props.navigation;
-        //console.log(this.state);
+        console.log('4. start quiz');
+        const {navigate} = this.props.navigation;
+        console.log('current '+this.state.current);
         return (
             <View style={styles.containerView}>
                 {!!this.state.loading && (
@@ -132,12 +107,13 @@ class QuizScreen extends React.Component{
                         onSelect={answer => {
                             this.submitAnswer(this.state.current, answer);
                         }}
+                        name={this.state.name}
+                        nbQuestion={this.state.nbQuestion}
                         question={this.state.questions[this.state.current]}
                         correctPosition={Math.floor(Math.random() * 3)}
                         current={this.state.current}
                     />
                 )}
-
 
             </View>
         )

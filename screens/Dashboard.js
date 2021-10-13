@@ -7,13 +7,21 @@ import {theme} from "../core/theme";
 import {connect} from "react-redux";
 import {Card} from "react-native-elements";
 import AppButton from "../components/AppButton";
+import Database from "../core/Database";
 
 class Dashboard extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
             id: this.props.route.params.id,
+            players: [],
         };
+    }
+
+    componentDidMount() {
+        console.log(Database.getPlayerById(this.state.id));
+        this.setState({players: Database.getPlayers()});
+        console.log(this.state.players);
     }
 
     render(){

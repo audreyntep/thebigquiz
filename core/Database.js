@@ -1,5 +1,4 @@
 import * as SQLite from 'expo-sqlite';
-import type {Player} from "./Player";
 
 const db = SQLite.openDatabase("quizPlayers.db");
 
@@ -22,8 +21,8 @@ export default class Database{
                 tx.executeSql(
                     "create table if not exists player (id integer primary key autoincrement not null,name text, uri text, score integer default 0);"
                 );
-            }, (e) => { console.log("-> create KO + " + e) },
-            () => { console.log("-> create OK") }
+            }, (e) => { console.log("-> create database KO + " + e) },
+            () => { console.log("-> create database OK") }
         );
     }
 
@@ -34,7 +33,7 @@ export default class Database{
                     "drop table if exists player;"
                 );
             }, (e) => { console.log("-> create KO + " + e) },
-            () => { console.log("-> create OK") }
+            () => { console.log("-> create database OK") }
         );
     }
 
@@ -55,16 +54,16 @@ export default class Database{
     };
 
     static async createPlayer(name: string, uri: string) {
-        console.log('6. create player : '+ name);
+        console.log('2. create player : '+ name);
         let id = null;
         await this.ExecuteQuery("insert into player(name, uri) values(?, ?)", [name, uri]).then(
             (value) => {
-                console.log('-> insert OK');
-                console.log(JSON.stringify(value));
+                console.log('-> create player OK');
+                //console.log(JSON.stringify(value));
                 id = value.insertId;
             },
             (reason) => {
-                console.log('-> insert KO');
+                console.log('-> create player KO');
                 console.log(JSON.stringify(reason));
             }
         );
@@ -76,18 +75,23 @@ export default class Database{
     }
 
     static async getPlayerById(id: number) {
-        console.log('get player by '+id);
-        var player = [];
+        console.log('3. get player by id');
+        let name = "";
         await this.ExecuteQuery("SELECT * FROM player where id=?", [id]).then(
             (value) => {
-                console.log(JSON.stringify(value));
+                name = value.rows._array[0].name;
+                console.log('-> player name : ' + name);
+                console.log('-> select player '+id+' OK');
                 /*if(value.rows.length > 0) {
                     result = value.rows;
                 }*/
             },
-            (reason) => {console.log(JSON.stringify(reason));}
+            (reason) => {
+                console.log('-> select KO');
+                //console.log(JSON.stringify(reason));
+            }
         );
         //console.log('4. results length: '+results.length);
-        //return results;
+        return name;
     }
 }

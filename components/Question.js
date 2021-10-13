@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import { RadioGroup, RadioButton } from "react-native-flexi-radio-button";
 import AppButton from "./AppButton";
 import {theme} from "../core/theme";
+import Header from "./Header";
 
 export default class Question extends React.Component {
     constructor() {
@@ -50,16 +51,13 @@ export default class Question extends React.Component {
         }
     };
 
-    render() {
+    render() {gftttttt
         return (
             <View style={styles.containerView}>
+                <Header>{this.props.name}</Header>
                 <Text style={styles.index}>
-                    Question : {this.props.current + 1} / 5
+                    Question : {this.props.current} / {this.props.nbQuestion}
                 </Text>
-                <Text style={styles.level}>
-                    Difficulté : {this.props.question.difficulty}
-                </Text>
-
                 <Text style={styles.question}>
                     {this.props.question.question}
                 </Text>
@@ -90,10 +88,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: "#666",
         textAlign: "right",
-    },
-    level: {
-        fontSize: 18,
-        color: "#666",
     },
     question: {
         fontSize: 24,
