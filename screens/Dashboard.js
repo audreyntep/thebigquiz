@@ -9,11 +9,14 @@ import {Card} from "react-native-elements";
 import AppButton from "../components/AppButton";
 import Database from "../core/Database";
 
+
+const user = [];
+
 class Dashboard extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
-            id: this.props.route.params.id,
+            id: this.props.route.params.playerId,
             players: [],
         };
     }
@@ -21,7 +24,6 @@ class Dashboard extends React.Component{
     componentDidMount() {
         console.log(Database.getPlayerById(this.state.id));
         this.setState({players: Database.getPlayers()});
-        console.log(this.state.players);
     }
 
     render(){

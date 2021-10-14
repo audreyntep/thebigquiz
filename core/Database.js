@@ -70,8 +70,15 @@ export default class Database{
         return id;
     }
 
-    static async updatePlayerScore(){
-
+    static async updatePlayerScore(id: number, score: number){
+        await this.ExecuteQuery("update player set score=? where id=?", [score,id]).then(
+            (value) => {
+                console.log('-> update OK');
+            },
+            (reason) => {
+                console.log('-> update KO');
+            }
+        );
     }
 
     static async getPlayerById(id: number) {

@@ -4,31 +4,6 @@ import {connect} from "react-redux";
 import Database from "../core/Database";
 import Question from "../components/Question";
 import AppButton from "../components/AppButton";
-import { Card, ListItem, Button, Icon } from 'react-native-elements';
-
-const users = [
-    {
-        name: 'john',
-        avatar: '/img/user.jpg',
-        score: 10,
-    },
-    {
-        name: 'brynn',
-        avatar: '/img/user.jpg',
-        score: 20,
-    },
-    {
-        name: 'helen',
-        avatar: '/img/user.jpg',
-        score: 15,
-    },
-    {
-        name: 'audrey',
-        avatar: '/img/user.jpg',
-        score: 25,
-    },
-]
-
 
 class QuizScreen extends React.Component{
     constructor(props) {
@@ -39,9 +14,8 @@ class QuizScreen extends React.Component{
             loading: false,
             nbQuestion: 5,
             correctScore: 5,
-            completed: false,
             questions: [],
-            current: 1,
+            current: 0,
             score:0
         };
     }
@@ -56,21 +30,17 @@ class QuizScreen extends React.Component{
         await this.setState({ loading: true });
         //on récupère les questions depuis un serveur distant
         const response = await fetch(
-            'https://opentdb.com/api.php?amount='+this.state.nbQuestion+'&category=11&type=boolean', {
+            'https://opentdb.com/api.php?amount=6&category=11&type=boolean', {
                 method : 'POST', headers: { Accept: 'application/json','Content-Type':'application/json'}
             }
         );
         const questions = await response.json();
         const { results } = questions;
-        /*results.forEach(item => {
-            item.id = Math.floor(Math.random() * 10000);
-        });*/
         await this.setState({ questions: results, loading: false });
     };
 
     //gestion de la validation de la réponse
     submitAnswer = (index, answer) => {
-        console.log('submit current '+this.state.current);
         //on récupère la question courante
         const question = this.state.questions[index];
         //on vérifie si la réponse du joueur est identique
@@ -79,24 +49,26 @@ class QuizScreen extends React.Component{
         if(isCorrect){this.setState({score: + this.state.correctScore})};
         //on change de question
         this.setState({current: index + 1});
-        //on vérifie que la partie n est pas finie
-        this.setState({completed: this.state.current === this.state.nbQuestion});
-        /*
-        console.log('completed :'+this.state.completed);
-        if(this.state.completed === true){
-            navigate('Dashboard');
-        }*/
     };
 
-    async navigateToDashboard(navigate){
-        if(this.state.current === this.state.nbQuestion){await navigate('Dashboard');}
-    }
+    //on vérifie que le quiz est terminé
+    isQuizCompleted(){
+        return this.state.current === this.state.nbQuestion;
+    };
+
+    //on enregistre le score et redirige vers le dashboard
+    static async updateScore(id: number, score: number,navigate: function){
+        await Database.updatePlayerScore(id, score);
+        navigate('Dashboard', {playerId: id})
+    };
+
 
     render(){
-        console.log('4. start quiz');
+        let indice = 0;
+        indice+=1;
+        console.log('4. start quiz'+ indice);
+        let completed = this.isQuizCompleted();
         const {navigate} = this.props.navigation;
-        console.log('render current '+this.state.current);
-        this.navigateToDashboard({navigate});
         return (
             <View style={styles.containerView}>
                 {!!this.state.loading && (
@@ -107,7 +79,7 @@ class QuizScreen extends React.Component{
                 )}
 
                 {!!this.state.questions.length > 0 &&
-                this.state.completed === false && (
+                completed === false && (
                     <Question
                         onSelect={answer => {
                             this.submitAnswer(this.state.current, answer);
@@ -119,7 +91,11 @@ class QuizScreen extends React.Component{
                         current={this.state.current}
                     />
                 )}
-
+                {!!completed === true && (
+                    <View>
+                        <AppButton title={'Voir les scores'} onPress={() => QuizScreen.updateScore(this.state.id, this.state.score, navigate)}/>
+                    </View>
+                )}
             </View>
         )
     }

@@ -56,7 +56,7 @@ export default class Question extends React.Component {
             <View style={styles.containerView}>
                 <Text style={styles.player}>{this.props.name}</Text>
                 <Text style={styles.index}>
-                    Question : {this.props.current} / {this.props.nbQuestion}
+                    Question : {this.props.current + 1} / {this.props.nbQuestion}
                 </Text>
                 <Text style={styles.question}>
                     {this.props.question.question}
